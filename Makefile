@@ -9,7 +9,11 @@ SRCS = src/codexion.c \
 		src/atoll.c \
 		src/parser.c \
 		src/heap.c \
-		src/heap_ops.c
+		src/heap_ops.c \
+		src/allocs.c \
+		src/frees.c \
+		src/inits.c
+
 OBJS = $(SRCS:.c=.o)
 	
 HDRS = $(INCLUDES)/codexion.h

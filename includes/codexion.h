@@ -6,7 +6,7 @@
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 07:11:05 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/14 09:26:47 by ibaya            ###   ########.fr       */
+/*   Updated: 2026/09/14 16:13:01 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ typedef struct s_sim {
 	long long		time_to_refactor;
 	int				nb_compiles_req;
 	long long		dongle_cooldown;
+	int				heap_cap;
 	t_scheduler		scheduler;
 
 	long long		start_time;
@@ -76,40 +77,52 @@ typedef struct s_sim {
 	t_dongle		**dongles;
 }	t_sim;
 
-typedef struct alloc_s
+typedef struct s_alloc
 {
 	void			*ptr;
-	struct alloc_s	*next;
-}	alloc_t;
+	struct s_alloc	*next;
+}	t_alloc;
 
-typedef struct mutex_alloc_s {
+typedef struct s_mutex_alloc {
 	pthread_mutex_t			*mutex_ptr;
-	struct mutex_alloc_s	*next;
-}	mutex_alloc_t;
+	struct s_mutex_alloc	*next;
+}	t_mutex_alloc;
 
-typedef struct allocs_tracker_s {
-	alloc_t			*allocs_head;
-	alloc_t			*allocs_end;
-	mutex_alloc_t	*mutexes_head;
-	mutex_alloc_t	*mutexes_end;
-}	allocs_tracker_t;
+typedef struct s_allocs_tracker {
+	t_alloc			*allocs_head;
+	t_alloc			*allocs_end;
+	t_mutex_alloc	*mutexes_head;
+	t_mutex_alloc	*mutexes_end;
+}	t_allocs_tracker;
 
 // parsing stuff
-long long	ft_atoll(const char *str);
-int			is_numeric(const char *str);
-int			check_num_args(char **argv);
-int			check_scheduler(char *scheduler, t_sim *sim);
-int			print_errors(int error_code, int arg);
-int			parse_args(int argc, char **argv, t_sim *sim);
+long long			ft_atoll(const char *str);
+int					is_numeric(const char *str);
+int					check_num_args(char **argv);
+int					check_scheduler(char *scheduler, t_sim *sim);
+int					print_errors(int error_code, int arg);
+int					parse_args(int argc, char **argv, t_sim *sim);
 
 // heap stuff
-int			init_heap(t_heap *heap, int capacity, t_scheduler type);
-void		free_heap(t_heap *heap);
-void		sift_up(t_heap *heap, int index);
-void		sift_down(t_heap *heap, int index);
-void		heap_push(t_heap *heap, t_request req);
-t_request	heap_pop(t_heap *heap);
-void		swap_requests(t_request *a, t_request *b);
-int			compare_requests(t_request *a, t_request *b, t_scheduler type);
+int					init_heap(t_allocs_tracker *allocs, t_heap *heap,
+						int capacity, t_scheduler type);
+void				free_heap(t_heap *heap);
+void				sift_up(t_heap *heap, int index);
+void				sift_down(t_heap *heap, int index);
+void				heap_push(t_heap *heap, t_request req);
+t_request			heap_pop(t_heap *heap);
+void				swap_requests(t_request *a, t_request *b);
+int					compare_requests(t_request *a, t_request *b,
+						t_scheduler type);
+
+// init stuff
+void				ft_destroy_mutexes(t_allocs_tracker *allocs);
+void				ft_free(t_allocs_tracker *allocs);
+t_allocs_tracker	*init_alloc_saver(void);
+void				*ft_malloc(t_allocs_tracker *allocs, size_t size);
+pthread_mutex_t		*create_mutex(t_allocs_tracker *allocs);
+t_dongle			**init_dongles(t_sim *sim, t_allocs_tracker *allocs);
+t_coder				**init_coders_structs(t_sim *sim, t_allocs_tracker *allocs);
+t_sim				*init_sim(int argc, char **argv, t_allocs_tracker *allocs);
 
 #endif

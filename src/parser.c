@@ -6,7 +6,7 @@
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/10 18:24:44 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/10 21:26:19 by ibaya            ###   ########.fr       */
+/*   Updated: 2026/09/14 16:13:27 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ int	parse_args(int argc, char **argv, t_sim *sim)
 	sim->time_to_refactor = ft_atoll(argv[5]);
 	sim->nb_compiles_req = ft_atoll(argv[6]);
 	sim->dongle_cooldown = ft_atoll(argv[7]);
+	sim->heap_cap = 2;
 	if (sim->nb_coders <= 0)
 		return (print_errors(3, 0));
 	if (check_scheduler(argv[8], sim))

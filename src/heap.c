@@ -6,7 +6,7 @@
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:31:00 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/13 02:34:42 by ibaya            ###   ########.fr       */
+/*   Updated: 2026/09/14 15:49:53 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,13 @@ int	compare_requests(t_request *a, t_request *b, t_scheduler type)
 	}
 }
 
-int	init_heap(t_heap *heap, int capacity, t_scheduler type)
+int	init_heap(t_allocs_tracker *allocs, t_heap *heap,
+	int capacity, t_scheduler type)
 {
 	heap->capacity = capacity;
 	heap->size = 0;
 	heap->scheduler = type;
-	heap->array = malloc(sizeof(t_request) * capacity);
+	heap->array = ft_malloc(allocs, sizeof(t_request) * capacity);
 	if (!heap->array)
 		return (1);
 	return (0);
