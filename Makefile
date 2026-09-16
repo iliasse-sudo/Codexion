@@ -13,7 +13,13 @@ SRCS = src/codexion.c \
 		src/allocs.c \
 		src/frees.c \
 		src/inits.c \
-		src/time.c
+		src/time.c \
+		src/log.c \
+		src/dongles.c \
+		src/dongles_utils.c \
+		src/routine.c \
+		src/monitor.c \
+		src/simulation.c
 
 OBJS = $(SRCS:.c=.o)
 	

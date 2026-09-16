@@ -1,32 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
+/*   log.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/10 18:37:28 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/16 10:58:49 by ibaya            ###   ########.fr       */
+/*   Created: 2026/09/16 04:45:00 by ibaya             #+#    #+#             */
+/*   Updated: 2026/09/16 04:45:00 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	main(int argc, char **argv)
+void	print_status(t_coder *coder, const char *action)
 {
-	t_sim				*sim;
-	t_allocs_tracker	*allocs;
+	long long	timestamp;
 
-	allocs = init_alloc_saver();
-	if (!allocs)
-		return (1);
-	sim = init_sim(argc, argv, allocs);
-	if (!sim)
+	pthread_mutex_lock(coder->sim->write_mutex);
+	pthread_mutex_lock(coder->sim->state_mutex);
+	if (!coder->sim->sim_stop)
 	{
-		ft_free(allocs);
-		return (1);
+		timestamp = get_time_in_ms() - coder->sim->start_time;
+		printf("%lld %d %s\n", timestamp, coder->id, action);
 	}
-	run_simulation(sim);
-	ft_free(allocs);
-	return (0);
+	pthread_mutex_unlock(coder->sim->state_mutex);
+	pthread_mutex_unlock(coder->sim->write_mutex);
 }

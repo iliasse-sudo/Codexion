@@ -6,7 +6,7 @@
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/08 07:11:05 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/14 16:13:01 by ibaya            ###   ########.fr       */
+/*   Updated: 2026/09/16 10:59:00 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ typedef struct s_sim {
 
 	long long		start_time;
 	int				sim_stop;
+	pthread_t		monitor_thread;
 
 	pthread_mutex_t	*write_mutex;
 	pthread_mutex_t	*state_mutex;
@@ -141,5 +142,28 @@ t_sim				*init_sim(int argc, char **argv, t_allocs_tracker *allocs);
 long long			get_time_in_ms(void);
 int					has_sim_stopped(t_sim *sim);
 void				ft_usleep(long long duration_ms, t_sim *sim);
+
+// log stuff
+void				print_status(t_coder *coder, const char *action);
+
+// dongle stuff
+void				push_dongle_requests(t_coder *coder);
+long long			get_cooldown_wait(t_coder *coder);
+void				wait_for_dongles(t_coder *coder);
+void				release_dongle(t_sim *sim, t_dongle *dongle,
+						long long cd_end);
+int					grab_dongles(t_coder *coder);
+void				drop_dongles(t_coder *coder);
+
+// routine stuff
+int					is_coder_done(t_coder *coder);
+void				*coder_routine(void *arg);
+
+// monitor stuff
+void				wake_all_coders(t_sim *sim);
+void				*monitor_routine(void *arg);
+
+// simulation stuff
+int					run_simulation(t_sim *sim);
 
 #endif
