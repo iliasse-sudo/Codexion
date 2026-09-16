@@ -36,6 +36,30 @@ void	ft_destroy_mutexes(t_allocs_tracker *allocs)
 	tmp = NULL;
 }
 
+void	ft_destroy_conds(t_allocs_tracker *allocs)
+{
+	t_cond_alloc	*tmp;
+
+	if (!allocs->conds_head)
+		return ;
+	tmp = allocs->conds_head;
+	allocs->conds_end = NULL;
+	while (tmp->next)
+	{
+		tmp = allocs->conds_head->next;
+		pthread_cond_destroy(allocs->conds_head->cond_ptr);
+		free(allocs->conds_head->cond_ptr);
+		allocs->conds_head->cond_ptr = NULL;
+		free(allocs->conds_head);
+		allocs->conds_head = tmp;
+	}
+	pthread_cond_destroy(allocs->conds_head->cond_ptr);
+	free(allocs->conds_head->cond_ptr);
+	allocs->conds_head->cond_ptr = NULL;
+	free(allocs->conds_head);
+	tmp = NULL;
+}
+
 void	ft_free(t_allocs_tracker *allocs)
 {
 	t_alloc	*tmp;
@@ -55,6 +79,7 @@ void	ft_free(t_allocs_tracker *allocs)
 	free(allocs->allocs_head);
 	tmp = NULL;
 	ft_destroy_mutexes(allocs);
+	ft_destroy_conds(allocs);
 	free(allocs);
 	allocs = NULL;
 }

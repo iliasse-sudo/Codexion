@@ -6,7 +6,7 @@
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 17:21:15 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/14 17:55:42 by ibaya            ###   ########.fr       */
+/*   Updated: 2026/09/16 04:37:32 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,9 @@
 
 t_dongle	**init_dongles(t_sim *sim, t_allocs_tracker *allocs)
 {
-	t_dongle		**dongles;
-	t_heap			*heap;
-	pthread_mutex_t	*mtx;
-	int				i;
+	t_dongle	**dongles;
+	t_heap		*heap;
+	int			i;
 
 	dongles = ft_malloc(allocs, sizeof(t_dongle *) * sim->nb_coders);
 	if (!dongles)
@@ -27,14 +26,15 @@ t_dongle	**init_dongles(t_sim *sim, t_allocs_tracker *allocs)
 	{
 		dongles[i] = ft_malloc(allocs, sizeof(t_dongle));
 		heap = ft_malloc(allocs, sizeof(t_heap));
-		mtx = create_mutex(allocs);
-		if (!dongles[i] || !heap || !mtx)
+		if (!dongles[i] || !heap)
 			return (NULL);
 		dongles[i]->id = i;
+		dongles[i]->is_held = 0;
 		dongles[i]->available_at = 0;
 		dongles[i]->heap = heap;
-		dongles[i]->mutex = *mtx;
-		if (init_heap(allocs, heap, sim->heap_cap, sim->scheduler))
+		dongles[i]->mutex = create_mutex(allocs);
+		if (!dongles[i]->mutex || init_heap(allocs, heap,
+				sim->heap_cap, sim->scheduler))
 			return (NULL);
 		i++;
 	}
@@ -62,6 +62,8 @@ t_allocs_tracker	*init_alloc_saver(void)
 	allocs->allocs_end = node;
 	allocs->mutexes_head = NULL;
 	allocs->mutexes_end = NULL;
+	allocs->conds_head = NULL;
+	allocs->conds_end = NULL;
 	return (allocs);
 }
 
@@ -82,6 +84,10 @@ t_coder	**init_coders_structs(t_sim *sim, t_allocs_tracker *allocs)
 		coders[i]->id = i + 1;
 		coders[i]->compiles_done = 0;
 		coders[i]->last_compile_start = 0;
+		coders[i]->lock = create_mutex(allocs);
+		coders[i]->cond = create_cond(allocs);
+		if (!coders[i]->lock || !coders[i]->cond)
+			return (NULL);
 		coders[i]->sim = sim;
 		coders[i]->left_dongle = sim->dongles[i];
 		coders[i]->right_dongle = sim->dongles[(i + 1) % sim->nb_coders];
@@ -99,10 +105,10 @@ t_sim	*init_sim(int argc, char **argv, t_allocs_tracker *allocs)
 		return (NULL);
 	if (parse_args(argc, argv, sim))
 		return (NULL);
-	if (pthread_mutex_init(&sim->write_mutex, NULL))
+	sim->write_mutex = create_mutex(allocs);
+	sim->state_mutex = create_mutex(allocs);
+	if (!sim->write_mutex || !sim->state_mutex)
 		return (NULL);
-	if (pthread_mutex_init(&sim->state_mutex, NULL))
-		return (pthread_mutex_destroy(&sim->write_mutex), NULL);
 	sim->dongles = init_dongles(sim, allocs);
 	if (!sim->dongles)
 		return (NULL);

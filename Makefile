@@ -12,7 +12,8 @@ SRCS = src/codexion.c \
 		src/heap_ops.c \
 		src/allocs.c \
 		src/frees.c \
-		src/inits.c
+		src/inits.c \
+		src/time.c
 
 OBJS = $(SRCS:.c=.o)
 	

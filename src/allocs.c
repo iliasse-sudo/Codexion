@@ -6,7 +6,7 @@
 /*   By: ibaya <ibaya@student.1337.ma>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/14 17:22:15 by ibaya             #+#    #+#             */
-/*   Updated: 2026/09/14 17:22:16 by ibaya            ###   ########.fr       */
+/*   Updated: 2026/09/16 04:37:54 by ibaya            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,28 @@ pthread_mutex_t	*create_mutex(t_allocs_tracker *allocs)
 	else
 		allocs->mutexes_end->next = new_mutex;
 	allocs->mutexes_end = new_mutex;
+	return (new);
+}
+
+pthread_cond_t	*create_cond(t_allocs_tracker *allocs)
+{
+	pthread_cond_t	*new;
+	t_cond_alloc	*new_cond;
+
+	new = malloc(sizeof(*new));
+	new_cond = malloc(sizeof(*new_cond));
+	if (!new || !new_cond)
+		return (free(new), free(new_cond), NULL);
+	if (pthread_cond_init(new, NULL))
+		return (free(new), free(new_cond), NULL);
+	memset(new_cond, 0, sizeof(*new_cond));
+	memset(new, 0, sizeof(*new));
+	new_cond->cond_ptr = new;
+	new_cond->next = NULL;
+	if (!allocs->conds_head)
+		allocs->conds_head = new_cond;
+	else
+		allocs->conds_end->next = new_cond;
+	allocs->conds_end = new_cond;
 	return (new);
 }
